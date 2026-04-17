@@ -140,14 +140,35 @@ def wait_for_db(retries=12, delay=5):
     raise RuntimeError("Не удалось подключиться к БД")
 
 
-print("🔍 Мониторинг нескольких групп VK запущен\n")
+ALL_GROUPS = {g["id"]: g.get("name", str(g["id"])) for g in VK_GROUPS}
+
+def sync_sources_and_get_active():
+    """Upsert все группы из .env, вернуть только активные."""
+    conn = db.get_connection()
+    try:
+        for gid, gname in ALL_GROUPS.items():
+            db.upsert_source(conn, "vk", str(gid), gname)
+        conn.commit()
+        active_ext_ids = db.get_active_sources(conn, "vk")
+    finally:
+        conn.close()
+    active = {gid: gname for gid, gname in ALL_GROUPS.items() if str(gid) in active_ext_ids}
+    logger.info("Активные VK-источники: %d/%d %s",
+                len(active), len(ALL_GROUPS),
+                [name for name in active.values()])
+    return active
+
+
+logger.info("Мониторинг VK запущен")
 
 wait_for_db()
 last_posts = load_state()
 
 while True:
     try:
-        for group_id, group_name in {g["id"]: g.get("name", str(g["id"])) for g in VK_GROUPS}.items():
+        active_groups = sync_sources_and_get_active()
+
+        for group_id, group_name in active_groups.items():
             posts = get_latest_posts(group_id)
 
             group_key = str(group_id)
