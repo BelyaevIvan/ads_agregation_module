@@ -91,6 +91,16 @@ def save_photo(
         )
 
 
+def get_active_sources(conn, platform: str) -> set[str]:
+    """Возвращает множество external_id активных источников для платформы."""
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT external_id FROM sources WHERE platform = %s AND is_active = TRUE",
+            (platform,),
+        )
+        return {row[0] for row in cur.fetchall()}
+
+
 def save_log(
     conn,
     source_id: str | None,

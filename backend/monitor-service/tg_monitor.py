@@ -51,6 +51,39 @@ client = TelegramClient(
 )
 
 
+# ── Активные источники ───────────────────────────────────────────────────
+
+# Множество chat_id, которые сейчас активны (пересечение .env и БД)
+active_channels: set[int] = set()
+ACTIVE_CHANNELS_REFRESH = 60  # секунд
+
+
+def sync_sources_and_get_active() -> set[int]:
+    """Upsert все каналы из .env, вернуть только активные."""
+    conn = db.get_connection()
+    try:
+        for ch_id in TG_WATCHED_CHANNELS:
+            db.upsert_source(conn, "telegram", str(ch_id))
+        conn.commit()
+        active_ext_ids = db.get_active_sources(conn, "telegram")
+    finally:
+        conn.close()
+    result = {ch for ch in TG_WATCHED_CHANNELS if str(ch) in active_ext_ids}
+    logger.info("Активные TG-источники: %d/%d", len(result), len(TG_WATCHED_CHANNELS))
+    return result
+
+
+async def refresh_active_channels():
+    """Фоновая задача: обновляет active_channels каждые N секунд."""
+    global active_channels
+    while True:
+        try:
+            active_channels = await asyncio.to_thread(sync_sources_and_get_active)
+        except Exception as e:
+            logger.error("Ошибка обновления активных каналов: %s", e)
+        await asyncio.sleep(ACTIVE_CHANNELS_REFRESH)
+
+
 # ── Вспомогательные функции ───────────────────────────────────────────────
 
 def get_message_link(chat, msg):
@@ -171,7 +204,7 @@ async def flush_album(grouped_id):
 
 @client.on(events.NewMessage)
 async def handler(event):
-    if event.chat_id not in TG_WATCHED_CHANNELS:
+    if event.chat_id not in active_channels:
         return
 
     grouped_id = event.message.grouped_id
@@ -221,10 +254,12 @@ def wait_for_db(retries=12, delay=5):
 
 
 async def main():
+    global active_channels
     wait_for_db()
+    active_channels = await asyncio.to_thread(sync_sources_and_get_active)
     await client.start()
-    logger.info("🚀 Слушаем каналы...")
-    logger.info("Отслеживаемые ID: %s", TG_WATCHED_CHANNELS)
+    asyncio.create_task(refresh_active_channels())
+    logger.info("Слушаем каналы (обновление списка каждые %d сек)...", ACTIVE_CHANNELS_REFRESH)
     await client.run_until_disconnected()
 
 
