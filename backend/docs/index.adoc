@@ -1,0 +1,53 @@
+= API BrandHunt — список методов
+:toc-title: Содержание
+:table-stripes: even
+:table-caption!:
+
+Документация к REST API сервиса **api-service** (Go, стандартная библиотека `net/http`).
+
+Базовый URL: `/api/v1`.
+
+Защищённые методы требуют заголовок `Authorization: Bearer <jwt>`.
+
+== Объявления
+
+* <<get-listings/get-listings.adoc#, GET /listings — Поиск и фильтрация объявлений>>
+* <<get-listings-id/get-listings-id.adoc#, GET /listings/{id} — Карточка объявления>>
+
+== Авторизация
+
+* <<post-auth-register/post-auth-register.adoc#, POST /auth/register — Регистрация пользователя>>
+* <<post-auth-login/post-auth-login.adoc#, POST /auth/login — Вход, получение JWT>>
+* <<post-auth-logout/post-auth-logout.adoc#, POST /auth/logout — Выход>>
+
+== Профиль пользователя
+
+* <<get-users-me/get-users-me.adoc#, GET /users/me — Профиль текущего пользователя>>
+* <<put-users-me/put-users-me.adoc#, PUT /users/me — Обновление профиля>>
+
+== Избранное
+
+* <<get-users-me-favorites/get-users-me-favorites.adoc#, GET /users/me/favorites — Список избранного>>
+* <<post-users-me-favorites/post-users-me-favorites.adoc#, POST /users/me/favorites — Добавить в избранное>>
+* <<delete-users-me-favorites-id/delete-users-me-favorites-id.adoc#, DELETE /users/me/favorites/{listing_id} — Убрать из избранного>>
+
+== Администрирование: объявления
+
+* <<get-admin-listings/get-admin-listings.adoc#, GET /admin/listings — Все объявления (включая скрытые)>>
+* <<get-admin-listings-id/get-admin-listings-id.adoc#, GET /admin/listings/{id} — Карточка объявления (включая скрытые)>>
+* <<patch-admin-listings-id-visibility/patch-admin-listings-id-visibility.adoc#, PATCH /admin/listings/{id}/visibility — Скрыть / восстановить>>
+* <<patch-admin-listings-id-text/patch-admin-listings-id-text.adoc#, PATCH /admin/listings/{id}/text — Редактировать текст объявления>>
+* <<delete-admin-listings-id-photos-id/delete-admin-listings-id-photos-id.adoc#, DELETE /admin/listings/{id}/photos/{photo_id} — Удалить фотографию>>
+
+== Администрирование: статистика
+
+* <<get-admin-stats/get-admin-stats.adoc#, GET /admin/stats — Сводная статистика>>
+* <<get-admin-stats-listings-by-day/get-admin-stats-listings-by-day.adoc#, GET /admin/stats/listings-by-day — Динамика объявлений по дням>>
+* <<get-admin-stats-top-brands/get-admin-stats-top-brands.adoc#, GET /admin/stats/top-brands — Топ брендов>>
+* <<get-admin-stats-top-cities/get-admin-stats-top-cities.adoc#, GET /admin/stats/top-cities — Топ городов>>
+
+== Администрирование: источники
+
+* <<get-admin-sources/get-admin-sources.adoc#, GET /admin/sources — Список источников мониторинга>>
+* <<post-admin-sources/post-admin-sources.adoc#, POST /admin/sources — Добавить источник>>
+* <<patch-admin-sources-id-toggle/patch-admin-sources-id-toggle.adoc#, PATCH /admin/sources/{id}/toggle — Включить / отключить источник>>

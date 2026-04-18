@@ -1,0 +1,16 @@
+PATCH `/api/v1/admin/listings/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b/text`
+
+Заголовки:
+[source]
+....
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+....
+
+Тело:
+[source, JSON]
+....
+{
+  "original_text": "Продаю Nike Air Max 90 белые, 42 размер. Состояние хорошее, носили 2 раза."
+}
+....

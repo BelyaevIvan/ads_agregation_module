@@ -1,0 +1,15 @@
+.Пример ответа при успешном получении сводной статистики:
+[source, JSON]
+....
+HTTP/1.1 200 OK
+
+{
+  "total_listings": 12847,
+  "active_listings": 12780,
+  "hidden_listings": 67,
+  "total_users": 1284,
+  "active_sources": 340,
+  "new_listings_today": 143,
+  "new_users_week": 28
+}
+....

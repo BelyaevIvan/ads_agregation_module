@@ -1,0 +1,259 @@
+= Метод для получения списка объявлений в админ-панели
+:toc-title: Содержание
+:table-stripes: even
+:table-caption!:
+
+== 1. Назначение
+Метод возвращает постраничный список всех объявлений (включая скрытые администратором) для панели управления. Доступен только пользователям с ролью `admin`.
+
+В отличие от публичного `GET /listings`, выдача **не фильтруется** по полю `is_hidden` по умолчанию. Через параметр `status` можно ограничить выборку активными (`active`) либо скрытыми (`hidden`) объявлениями, либо оставить пустым — тогда возвращаются все.
+
+== 2. Входные параметры
+|===
+|Параметр |Положение |Формат |Описание |Примеры
+
+|Authorization
+|header
+|string
+|JWT-токен администратора в формате `Bearer <token>`
+|"Bearer eyJhbGci..."
+
+|q
+|query
+|string (необязательный)
+|Полнотекстовый поиск по `brand`, `model`, `original_text` (ILIKE)
+|"nike"
+
+|status
+|query
+|string (необязательный, default "")
+|Фильтр по видимости: `"active"` (только не скрытые), `"hidden"` (только скрытые), `""` (все)
+|"hidden"
+
+|platform
+|query
+|string[] (необязательный)
+|Фильтр по платформе источника. Несколько значений: `platform=telegram&platform=vk`
+|"telegram", "vk"
+
+|sort
+|query
+|string (необязательный, default `"date_desc"`)
+|Сортировка: `"date_desc"` / `"price_asc"` / `"price_desc"`
+|"price_asc"
+
+|limit
+|query
+|int (необязательный, default 20, max 100)
+|Количество записей на странице
+|20
+
+|offset
+|query
+|int (необязательный, default 0, >= 0)
+|Смещение относительно начала выборки
+|0
+|===
+
+.Пример запроса
+[%collapsible]
+====
+include::request.adoc[]
+====
+
+== 3. Выходные параметры
+|===
+|Параметр |Формат |Описание |Примеры
+
+|items
+|object[]
+|Массив объявлений, отсортированный согласно `sort`
+|—
+
+|items[].id
+|string
+|Идентификатор объявления
+|"5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b"
+
+|items[].brand
+|optional string
+|Бренд товара
+|"Nike"
+
+|items[].model
+|optional string
+|Модель товара
+|"Air Max 90"
+
+|items[].category
+|optional string
+|Категория товара
+|"sneakers"
+
+|items[].color
+|optional string
+|Цвет
+|"White"
+
+|items[].price
+|optional number
+|Цена в рублях
+|8500
+
+|items[].city
+|optional string
+|Город продажи
+|"Москва"
+
+|items[].condition
+|optional string
+|Состояние
+|"new", "used"
+
+|items[].size_rus
+|string[]
+|Размеры RUS
+|["42"]
+
+|items[].size_eu
+|string[]
+|Размеры EU
+|["42"]
+
+|items[].size_us
+|string[]
+|Размеры US
+|["8.5"]
+
+|items[].cover_photo_url
+|optional string
+|URL обложки (через nginx-прокси `/minio/...`)
+|"/minio/brandhunt-photos/5a7f.../0.jpg"
+
+|items[].platform
+|optional string
+|Платформа источника
+|"telegram"
+
+|items[].source_title
+|optional string
+|Отображаемое название канала/группы
+|"@sneakers_moscow"
+
+|items[].is_hidden
+|boolean
+|Признак скрытости объявления администратором
+|false
+
+|items[].posted_at
+|optional datetime
+|Время публикации в источнике
+|"2026-04-17T12:00:00Z"
+
+|items[].created_at
+|datetime
+|Время создания записи в БД
+|"2026-04-17T12:05:00Z"
+
+|total
+|number
+|Общее количество объявлений, удовлетворяющих фильтру
+|12847
+
+|limit
+|number
+|Применённое значение `limit`
+|20
+
+|offset
+|number
+|Применённое значение `offset`
+|0
+|===
+
+.Пример положительного ответа
+[%collapsible]
+====
+include::response-success.adoc[]
+====
+
+.Примеры отрицательных ответов
+[%collapsible]
+====
+include::response-errors.adoc[]
+====
+
+== 4. Алгоритм работы
+
+[plantuml, target-name="activity diagram", format=png, theme, align="center"]
+....
+include::diagram.puml[]
+....
+
+=== 4.1. Идентификация пользователя по JWT
+. Извлечь заголовок `Authorization`. Если его нет или он имеет некорректный формат — вернуть исключение с http code 401 (Unauthorized) и соответствующее сообщение. Завершить работу.
+. Распарсить и проверить JWT. Если токен невалиден или просрочен — вернуть исключение с http code 401 и сообщение: "невалидный или просроченный токен". Завершить работу.
+. Извлечь из claims значения `user_id` и `role`. Перейти к шагу 4.2.
+
+=== 4.2. Проверка роли администратора
+. Если значение `role` не равно `"admin"` — вернуть исключение с http code 403 (Forbidden) и сообщение: "доступ запрещён: требуется роль администратора". Завершить работу.
+. Иначе — перейти к шагу 4.3.
+
+=== 4.3. Валидация входных параметров
+|===
+|Параметр |Условие |Результат
+
+|`limit`
+|Значение не является числом
+|Вернуть исключение с http code 400 (Bad Request) и сообщение: "параметр 'limit' должен быть числом"
+
+|`limit`
+|Значение превышает 100
+|Вернуть исключение с http code 400 и сообщение: "параметр 'limit' не может превышать 100"
+
+|`offset`
+|Значение не является числом
+|Вернуть исключение с http code 400 и сообщение: "параметр 'offset' должен быть числом"
+
+|`offset`
+|Значение отрицательное
+|Вернуть исключение с http code 400 и сообщение: "параметр 'offset' должен быть неотрицательным"
+
+|`sort`
+|Значение не входит в перечень `"date_desc"` / `"price_asc"` / `"price_desc"`
+|Вернуть исключение с http code 400 и сообщение: "недопустимое значение параметра 'sort'"
+
+|`status`
+|Значение не пустое и не равно `"active"` / `"hidden"`
+|Вернуть исключение с http code 400 и сообщение: "параметр 'status' может быть 'active', 'hidden' или пустым"
+|===
+
+=== 4.4. Сборка SQL-запроса
+. К базовому `SELECT` по таблице `listings` (алиас `l`) с `LEFT JOIN sources s ON l.source_id = s.id` последовательно добавить фильтры:
+.. если `status = "active"` — добавить условие `l.is_hidden = FALSE`; если `status = "hidden"` — добавить `l.is_hidden = TRUE`; если `status` пусто — фильтр по видимости **не добавляется** (это ключевое отличие от публичного `/listings`);
+.. если `q` не пусто — добавить условие `(l.brand ILIKE $X OR l.model ILIKE $X OR l.original_text ILIKE $X)` с параметром `%q%`;
+.. если задан массив `platform` — добавить условие `s.platform = ANY($X)`.
+. Установить `ORDER BY`:
+.. `ORDER BY l.posted_at DESC NULLS LAST` — при `sort = "date_desc"`;
+.. `ORDER BY l.price ASC NULLS LAST` — при `sort = "price_asc"`;
+.. `ORDER BY l.price DESC NULLS LAST` — при `sort = "price_desc"`.
+. Перейти к шагу 4.5.
+
+=== 4.5. Запрос к БД на получение общего количества объявлений
+. Выполнить `SELECT COUNT(*)` с теми же условиями `WHERE`, что и основной запрос. Сохранить в поле `total`.
+. Перейти к шагу 4.6.
+
+=== 4.6. Запрос к БД на получение постраничной выборки объявлений
+. Выполнить основной `SELECT` со списком полей (`id, brand, model, category, color, price, city, condition, size_rus, size_us, size_eu, cover_photo_url, platform, posted_at, created_at, source_title, is_hidden`), подзапросом на обложку (`SELECT photo_url FROM listing_photos WHERE listing_id = l.id AND is_cover = TRUE LIMIT 1`), применённой сортировкой и `LIMIT $X OFFSET $Y`.
+. Для каждой строки переписать URL обложки из внутреннего формата (`http://minio:9000/...`) в относительный путь `/minio/...`.
+. Перейти к шагу 4.7.
+
+=== 4.7. Формирование итогового ответа
+. Собрать тело ответа с полями `items`, `total`, `limit`, `offset`.
+. Перейти к шагу 4.8.
+
+=== 4.8. Отправка ответа об успехе
+. Отправить ответ, сформированный на шаге 4.7, с кодом успеха 200 OK.
+. Завершить работу.
+
+*<<../index.adoc#, Перейти к списку методов>>*

@@ -1,0 +1,47 @@
+.Пример ответа при успешном поиске объявлений:
+[source, JSON]
+....
+HTTP/1.1 200 OK
+
+{
+  "items": [
+    {
+      "id": "5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b",
+      "brand": "Nike",
+      "model": "Air Max 90",
+      "category": "sneakers",
+      "color": "White",
+      "price": 8500,
+      "city": "Москва",
+      "condition": "new",
+      "size_rus": ["42", "43"],
+      "size_eu": ["42"],
+      "size_us": ["8.5"],
+      "cover_photo_url": "/minio/brandhunt-photos/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b/0.jpg",
+      "platform": "telegram",
+      "posted_at": "2026-04-17T12:00:00Z",
+      "created_at": "2026-04-17T12:05:00Z"
+    },
+    {
+      "id": "7b9e4d1f-2c3a-4f6d-9a0b-1c2d3e4f5a6b",
+      "brand": "Nike",
+      "model": "Air Force 1",
+      "category": "sneakers",
+      "color": "Black",
+      "price": 7200,
+      "city": "Москва",
+      "condition": "used",
+      "size_rus": ["42"],
+      "size_eu": ["42"],
+      "size_us": ["8.5"],
+      "cover_photo_url": "/minio/brandhunt-photos/7b9e4d1f-2c3a-4f6d-9a0b-1c2d3e4f5a6b/0.jpg",
+      "platform": "vk",
+      "posted_at": "2026-04-17T10:15:00Z",
+      "created_at": "2026-04-17T10:20:00Z"
+    }
+  ],
+  "total": 248,
+  "limit": 20,
+  "offset": 0
+}
+....

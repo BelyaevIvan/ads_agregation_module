@@ -1,0 +1,19 @@
+PUT `/api/v1/users/me`
+
+Заголовки:
+[source]
+....
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+....
+
+Тело запроса:
+[source, JSON]
+....
+{
+  "full_name": "Андрей Иванов",
+  "phone": "+7 999 123-45-67",
+  "tg_link": "@andrey_tg",
+  "vk_link": "vk.com/andrey"
+}
+....

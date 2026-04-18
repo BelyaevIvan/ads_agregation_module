@@ -1,0 +1,77 @@
+.Тело запроса не является валидным JSON:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/auth/register",
+  "message": "некорректное тело запроса",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Поле `email` не передано или пустое:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/auth/register",
+  "message": "email обязателен",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Поле `email` имеет некорректный формат:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/auth/register",
+  "message": "некорректный формат email",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Поле `password` короче 8 символов:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/auth/register",
+  "message": "пароль должен содержать минимум 8 символов",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Пользователь с указанным `email` уже существует:
+[source, JSON]
+....
+HTTP/1.1 409 Conflict
+
+{
+  "statusCode": 409,
+  "url": "/api/v1/auth/register",
+  "message": "пользователь с таким email уже существует",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Непредвиденная ошибка на стороне сервера:
+[source, JSON]
+....
+HTTP/1.1 500 Internal Server Error
+
+{
+  "statusCode": 500,
+  "url": "/api/v1/auth/register",
+  "message": "внутренняя ошибка сервера, попробуйте позже",
+  "date": "2026-04-17T14:32:00Z"
+}
+....

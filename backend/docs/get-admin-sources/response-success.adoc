@@ -1,0 +1,31 @@
+.Пример ответа при успешном получении списка источников:
+[source, JSON]
+....
+HTTP/1.1 200 OK
+
+{
+  "items": [
+    {
+      "id": "9f7a1c8e-2b3d-4e5f-8a9b-0c1d2e3f4a5b",
+      "platform": "telegram",
+      "external_id": "-1001234567890",
+      "title": "@sneakers_moscow",
+      "is_active": true,
+      "listings_count": 1243,
+      "added_at": "2026-01-01T00:00:00Z"
+    },
+    {
+      "id": "4b8c5d6e-7f8a-9b0c-1d2e-3f4a5b6c7d8e",
+      "platform": "vk",
+      "external_id": "123456789",
+      "title": "Кроссовки СПб",
+      "is_active": false,
+      "listings_count": 524,
+      "added_at": "2025-12-15T09:17:00Z"
+    }
+  ],
+  "total": 340,
+  "limit": 50,
+  "offset": 0
+}
+....

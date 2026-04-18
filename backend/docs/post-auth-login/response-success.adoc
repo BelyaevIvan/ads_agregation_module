@@ -1,0 +1,11 @@
+.Пример ответа при успешной аутентификации:
+[source, JSON]
+....
+HTTP/1.1 200 OK
+
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOWQzYzViMmEtNmU4Zi00YTFjLWIwZDItN2U5ZjFhM2I1YzZkIiwicm9sZSI6InVzZXIiLCJleHAiOjE3NzkzODg4MDB9.sVHXbPZB9hB3jTqjGdq_uZ3yJ2p8XoB0pT9YmO5nKxE",
+  "token_type": "Bearer",
+  "expires_at": "2026-05-17T12:00:00Z"
+}
+....

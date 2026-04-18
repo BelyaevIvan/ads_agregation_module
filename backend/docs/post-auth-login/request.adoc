@@ -1,0 +1,9 @@
+POST `/api/v1/auth/login`
+
+[source, JSON]
+....
+{
+  "email": "user@example.com",
+  "password": "strongpassword123"
+}
+....

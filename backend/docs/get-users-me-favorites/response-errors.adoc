@@ -1,0 +1,77 @@
+.Параметр `limit` имеет некорректный формат:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/users/me/favorites?limit=abc",
+  "message": "параметр 'limit' должен быть числом",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Параметр `limit` превышает максимум 100:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/users/me/favorites?limit=500",
+  "message": "параметр 'limit' не может превышать 100",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Параметр `offset` имеет некорректный формат:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/users/me/favorites?offset=xyz",
+  "message": "параметр 'offset' должен быть числом",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Параметр `offset` отрицательный:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/users/me/favorites?offset=-1",
+  "message": "параметр 'offset' должен быть неотрицательным",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.JWT-токен отсутствует, невалиден или просрочен:
+[source, JSON]
+....
+HTTP/1.1 401 Unauthorized
+
+{
+  "statusCode": 401,
+  "url": "/api/v1/users/me/favorites",
+  "message": "невалидный или просроченный токен",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Непредвиденная ошибка на стороне сервера:
+[source, JSON]
+....
+HTTP/1.1 500 Internal Server Error
+
+{
+  "statusCode": 500,
+  "url": "/api/v1/users/me/favorites",
+  "message": "внутренняя ошибка сервера, попробуйте позже",
+  "date": "2026-04-17T14:32:00Z"
+}
+....

@@ -1,0 +1,14 @@
+.Пример ответа при успешном создании источника:
+[source, JSON]
+....
+HTTP/1.1 201 Created
+
+{
+  "id": "9f7a1c8e-2b3d-4e5f-8a9b-0c1d2e3f4a5b",
+  "platform": "telegram",
+  "external_id": "-1001234567890",
+  "title": "@sneakers_moscow",
+  "is_active": true,
+  "added_at": "2026-04-17T14:32:00Z"
+}
+....
