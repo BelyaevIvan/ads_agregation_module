@@ -1,0 +1,16 @@
+.Пример ответа при успешном обновлении профиля:
+[source, JSON]
+....
+HTTP/1.1 200 OK
+
+{
+  "id": "9d3c5b2a-6e8f-4a1c-b0d2-7e9f1a3b5c6d",
+  "email": "user@example.com",
+  "full_name": "Андрей Иванов",
+  "phone": "+7 999 123-45-67",
+  "tg_link": "@andrey_tg",
+  "vk_link": "vk.com/andrey",
+  "role": "user",
+  "created_at": "2026-04-17T12:00:00Z"
+}
+....

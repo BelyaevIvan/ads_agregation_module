@@ -1,0 +1,90 @@
+.URL запроса не соответствует шаблону `/api/v1/admin/listings/{id}/photos/{photo_id}`:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/admin/listings/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b/other/abc",
+  "message": "некорректный путь запроса",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Параметр `id` или `photo_id` имеет некорректный формат UUID:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/admin/listings/not-a-uuid/photos/c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e6f",
+  "message": "некорректный формат UUID",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.JWT-токен отсутствует, невалиден или просрочен:
+[source, JSON]
+....
+HTTP/1.1 401 Unauthorized
+
+{
+  "statusCode": 401,
+  "url": "/api/v1/admin/listings/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b/photos/c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e6f",
+  "message": "невалидный или просроченный токен",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.У пользователя отсутствует роль администратора:
+[source, JSON]
+....
+HTTP/1.1 403 Forbidden
+
+{
+  "statusCode": 403,
+  "url": "/api/v1/admin/listings/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b/photos/c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e6f",
+  "message": "доступ запрещён: требуется роль администратора",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Объявление с указанным `id` не найдено:
+[source, JSON]
+....
+HTTP/1.1 404 Not Found
+
+{
+  "statusCode": 404,
+  "url": "/api/v1/admin/listings/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b/photos/c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e6f",
+  "message": "объявление не найдено",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Фотография с указанным `photo_id` не найдена у данного объявления:
+[source, JSON]
+....
+HTTP/1.1 404 Not Found
+
+{
+  "statusCode": 404,
+  "url": "/api/v1/admin/listings/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b/photos/c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e6f",
+  "message": "фотография не найдена",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Непредвиденная ошибка на стороне сервера (например, сбой PostgreSQL при `DELETE` / `UPDATE`):
+[source, JSON]
+....
+HTTP/1.1 500 Internal Server Error
+
+{
+  "statusCode": 500,
+  "url": "/api/v1/admin/listings/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b/photos/c3d4e5f6-a7b8-4c9d-8e0f-1a2b3c4d5e6f",
+  "message": "внутренняя ошибка сервера, попробуйте позже",
+  "date": "2026-04-17T14:32:00Z"
+}
+....

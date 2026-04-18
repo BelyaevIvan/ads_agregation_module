@@ -1,0 +1,116 @@
+.Тело запроса не является валидным JSON:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/users/me",
+  "message": "некорректное тело запроса",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Поле `full_name` превышает 255 символов:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/users/me",
+  "message": "full_name не может превышать 255 символов",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Поле `phone` превышает 30 символов:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/users/me",
+  "message": "phone не может превышать 30 символов",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Поле `tg_link` превышает 255 символов:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/users/me",
+  "message": "tg_link не может превышать 255 символов",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Поле `vk_link` превышает 255 символов:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/users/me",
+  "message": "vk_link не может превышать 255 символов",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Заголовок `Authorization` не передан:
+[source, JSON]
+....
+HTTP/1.1 401 Unauthorized
+
+{
+  "statusCode": 401,
+  "url": "/api/v1/users/me",
+  "message": "отсутствует токен авторизации",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.JWT невалидный или просроченный:
+[source, JSON]
+....
+HTTP/1.1 401 Unauthorized
+
+{
+  "statusCode": 401,
+  "url": "/api/v1/users/me",
+  "message": "невалидный или просроченный токен",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Пользователь, связанный с токеном, удалён из БД:
+[source, JSON]
+....
+HTTP/1.1 404 Not Found
+
+{
+  "statusCode": 404,
+  "url": "/api/v1/users/me",
+  "message": "пользователь не найден",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Непредвиденная ошибка на стороне сервера:
+[source, JSON]
+....
+HTTP/1.1 500 Internal Server Error
+
+{
+  "statusCode": 500,
+  "url": "/api/v1/users/me",
+  "message": "внутренняя ошибка сервера, попробуйте позже",
+  "date": "2026-04-17T14:32:00Z"
+}
+....

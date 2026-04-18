@@ -1,0 +1,328 @@
+= Метод для поиска и фильтрации объявлений
+:toc-title: Содержание
+:table-stripes: even
+:table-caption!:
+
+== 1. Назначение
+Метод позволяет получить постраничный список объявлений с применением полнотекстового поиска, набора фильтров (бренд, категория, город, платформа, размер, цена, состояние) и сортировки. Используется на главной странице и на странице результатов поиска.
+
+В выдачу попадают только **не скрытые** объявления (`is_hidden = FALSE`). Скрытые записи доступны только через административный эндпоинт `GET /admin/listings`.
+
+Для каждого объявления в ответе возвращается лёгкая карточка со сведениями об обложке (одна фотография) — детальная карточка вместе со списком всех фотографий доступна через `GET /listings/{id}`.
+
+== 2. Входные параметры
+|===
+|Параметр |Положение |Формат |Описание |Примеры
+
+|q
+|query
+|string
+|Полнотекстовый поисковый запрос. Применяется по полям `brand`, `model`, `original_text` через `ILIKE '%q%'`.
+|"nike air max"
+
+|brand
+|query
+|string[]
+|Фильтр по бренду. Повторяющийся параметр, значения объединяются через `OR`.
+|`brand=Nike&brand=Adidas`
+
+|category
+|query
+|string[]
+|Фильтр по категории товара. Повторяющийся параметр.
+|`category=sneakers`
+
+|city
+|query
+|string[]
+|Фильтр по городу. Повторяющийся параметр.
+|`city=Москва&city=Санкт-Петербург`
+
+|condition
+|query
+|string
+|Состояние товара. Допустимые значения: `"new"`, `"used"`.
+|"new"
+
+|size_rus
+|query
+|string[]
+|Фильтр по российским размерам. Применяется как пересечение массивов (`&&`).
+|`size_rus=42&size_rus=43`
+
+|size_eu
+|query
+|string[]
+|Фильтр по европейским размерам.
+|`size_eu=42`
+
+|size_us
+|query
+|string[]
+|Фильтр по американским размерам.
+|`size_us=8.5`
+
+|price_min
+|query
+|float
+|Минимальная цена, руб.
+|1000
+
+|price_max
+|query
+|float
+|Максимальная цена, руб.
+|15000
+
+|include_no_size
+|query
+|boolean
+|Если `true`, в выдачу включаются объявления без заполненных размеров (по умолчанию `true`).
+|true
+
+|include_no_price
+|query
+|boolean
+|Если `true`, в выдачу включаются объявления без указанной цены (по умолчанию `true`).
+|true
+
+|include_no_city
+|query
+|boolean
+|Если `true`, в выдачу включаются объявления без указанного города (по умолчанию `true`).
+|true
+
+|platform
+|query
+|string[]
+|Фильтр по платформе-источнику. Допустимые значения: `"telegram"`, `"vk"`.
+|`platform=telegram`
+
+|sort
+|query
+|string
+|Порядок сортировки. Допустимые значения: `"date_desc"` (по умолчанию), `"price_asc"`, `"price_desc"`.
+|"price_asc"
+
+|limit
+|query
+|int
+|Количество объявлений на странице. По умолчанию 20, максимум 100.
+|20
+
+|offset
+|query
+|int
+|Смещение от начала выборки. По умолчанию 0.
+|40
+|===
+
+.Пример запроса
+[%collapsible]
+====
+include::request.adoc[]
+====
+
+== 3. Выходные параметры
+|===
+|Параметр |Формат |Описание |Примеры
+
+|items
+|object[]
+|Массив объявлений на текущей странице
+|—
+
+|items[].id
+|string
+|Идентификатор объявления
+|"5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b"
+
+|items[].brand
+|optional string
+|Бренд товара
+|"Nike"
+
+|items[].model
+|optional string
+|Модель товара
+|"Air Max 90"
+
+|items[].category
+|optional string
+|Категория товара
+|"sneakers"
+
+|items[].color
+|optional string
+|Цвет
+|"White"
+
+|items[].price
+|optional number
+|Цена, руб.
+|8500
+
+|items[].city
+|optional string
+|Город продажи
+|"Москва"
+
+|items[].condition
+|optional string
+|Состояние
+|"new", "used"
+
+|items[].size_rus
+|string[]
+|Размеры в российской размерной сетке
+|["42", "43"]
+
+|items[].size_eu
+|string[]
+|Размеры в европейской размерной сетке
+|["42"]
+
+|items[].size_us
+|string[]
+|Размеры в американской размерной сетке
+|["8.5"]
+
+|items[].cover_photo_url
+|optional string
+|URL обложки объявления (через nginx-прокси `/minio/...`)
+|"/minio/brandhunt-photos/5a7f.../0.jpg"
+
+|items[].platform
+|optional string
+|Платформа-источник
+|"telegram"
+
+|items[].posted_at
+|optional datetime
+|Время публикации в источнике
+|"2026-04-17T12:00:00Z"
+
+|items[].created_at
+|datetime
+|Время создания записи в БД
+|"2026-04-17T12:05:00Z"
+
+|total
+|number
+|Общее число объявлений, удовлетворяющих фильтрам (без учёта пагинации)
+|248
+
+|limit
+|number
+|Применённое значение `limit`
+|20
+
+|offset
+|number
+|Применённое значение `offset`
+|0
+|===
+
+.Пример положительного ответа
+[%collapsible]
+====
+include::response-success.adoc[]
+====
+
+.Примеры отрицательных ответов
+[%collapsible]
+====
+include::response-errors.adoc[]
+====
+
+== 4. Алгоритм работы
+
+[plantuml, target-name="activity diagram", format=png, theme, align="center"]
+....
+include::diagram.puml[]
+....
+
+=== 4.1. Валидация входных параметров
+|===
+|Параметр |Условие |Результат
+
+|`limit`
+|Значение не приводится к целому числу
+|Вернуть исключение с http code 400 (Bad Request) и сообщение: "параметр 'limit' должен быть положительным числом"
+
+|`limit`
+|Значение превышает 100
+|Вернуть исключение с http code 400 (Bad Request) и сообщение: "параметр 'limit' не может превышать 100"
+
+|`offset`
+|Значение не приводится к целому числу
+|Вернуть исключение с http code 400 (Bad Request) и сообщение: "параметр 'offset' должен быть неотрицательным числом"
+
+|`offset`
+|Значение отрицательное
+|Вернуть исключение с http code 400 (Bad Request) и сообщение: "параметр 'offset' должен быть неотрицательным"
+
+|`price_min`, `price_max`
+|Значение не приводится к числу с плавающей точкой
+|Вернуть исключение с http code 400 (Bad Request) и сообщение: "параметр 'price_min' должен быть числом" (или 'price_max')
+
+|`sort`
+|Значение не входит в набор `"date_desc"`, `"price_asc"`, `"price_desc"`
+|Вернуть исключение с http code 400 (Bad Request) и сообщение: "недопустимое значение параметра 'sort'"
+
+|`condition`
+|Значение не равно `"new"` или `"used"`
+|Вернуть исключение с http code 400 (Bad Request) и сообщение: "параметр 'condition' может быть 'new' или 'used'"
+|===
+
+=== 4.2. Построение условий выборки
+. Обязательным условием добавить `l.is_hidden = FALSE` — скрытые объявления не возвращаются публичным эндпоинтом.
+. Если передан `q`, добавить условие `(l.brand ILIKE '%q%' OR l.model ILIKE '%q%' OR l.original_text ILIKE '%q%')`.
+. Для массивных фильтров `brand`, `category`, `city`, `platform` добавить `field = ANY($arr)` (поле `platform` берётся из таблицы `sources` через `LEFT JOIN`).
+. Для массивов размеров `size_rus`, `size_eu`, `size_us` применить оператор пересечения: `field && $arr`. Если `include_no_size = true`, условие расширяется до `(field && $arr OR field IS NULL)`.
+. Для ценового диапазона добавить `l.price >= $min` и/или `l.price <= $max`. Если `include_no_price = true`, добавить `OR l.price IS NULL`.
+. Если передан `condition`, добавить `l.condition = $condition`.
+. Если `include_no_city = true` и фильтр по городу передан, условие расширяется до `(l.city = ANY($arr) OR l.city IS NULL)`.
+. Перейти к шагу 4.3.
+
+=== 4.3. Запрос к БД на подсчёт общего количества
+. Выполнить запрос `SELECT COUNT(*) FROM listings l LEFT JOIN sources s ON l.source_id = s.id WHERE <собранные условия>` — получить значение `total`.
+. В случае ошибки БД — вернуть исключение с http code 500 (Internal Server Error) и сообщение: "внутренняя ошибка сервера, попробуйте позже".
+. Перейти к шагу 4.4.
+
+=== 4.4. Запрос к БД на получение страницы объявлений
+. Выполнить запрос вида:
++
+[source, sql]
+----
+SELECT l.id, l.brand, l.model, l.category, l.color, l.price, l.city, l.condition,
+       l.size_rus, l.size_us, l.size_eu,
+       (SELECT photo_url FROM listing_photos
+         WHERE listing_id = l.id AND is_cover = TRUE LIMIT 1) AS cover_photo_url,
+       s.platform, l.posted_at, l.created_at
+FROM listings l
+LEFT JOIN sources s ON l.source_id = s.id
+WHERE <собранные условия>
+ORDER BY <сортировка>
+LIMIT $limit OFFSET $offset
+----
+. Сортировка:
+.. `date_desc` → `ORDER BY l.posted_at DESC NULLS LAST`;
+.. `price_asc` → `ORDER BY l.price ASC NULLS LAST`;
+.. `price_desc` → `ORDER BY l.price DESC NULLS LAST`.
+. Для каждой строки переписать URL обложки из внутреннего формата (`http://minio:9000/...`) в относительный `/minio/...` для проксирования через nginx.
+. Если массивы размеров пришли `NULL`, заменить их на пустые массивы (`[]`).
+. Перейти к шагу 4.5.
+
+=== 4.5. Формирование итогового ответа
+. Собрать тело ответа:
+.. `items` — результат шага 4.4 (пустой массив, если ничего не найдено);
+.. `total` — результат шага 4.3;
+.. `limit`, `offset` — значения, применённые к выборке.
+. Перейти к шагу 4.6.
+
+=== 4.6. Отправка ответа об успехе
+. Отправить сформированное тело с кодом успеха 200 OK.
+. Завершить работу.
+
+*<<../index.adoc#, Перейти к списку методов>>*

@@ -1,0 +1,1 @@
+GET `/api/v1/listings?q=nike&brand=Nike&category=sneakers&city=Москва&size_rus=42&price_min=5000&price_max=15000&sort=date_desc&limit=20&offset=0`

@@ -1,0 +1,116 @@
+.Параметр `limit` имеет некорректный формат:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/admin/listings?limit=abc",
+  "message": "параметр 'limit' должен быть числом",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Параметр `limit` превышает максимум 100:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/admin/listings?limit=500",
+  "message": "параметр 'limit' не может превышать 100",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Параметр `offset` имеет некорректный формат:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/admin/listings?offset=xyz",
+  "message": "параметр 'offset' должен быть числом",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Параметр `offset` отрицательный:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/admin/listings?offset=-1",
+  "message": "параметр 'offset' должен быть неотрицательным",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Параметр `sort` имеет недопустимое значение:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/admin/listings?sort=random",
+  "message": "недопустимое значение параметра 'sort'",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Параметр `status` имеет недопустимое значение:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/admin/listings?status=unknown",
+  "message": "параметр 'status' может быть 'active', 'hidden' или пустым",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.JWT-токен отсутствует, невалиден или просрочен:
+[source, JSON]
+....
+HTTP/1.1 401 Unauthorized
+
+{
+  "statusCode": 401,
+  "url": "/api/v1/admin/listings",
+  "message": "невалидный или просроченный токен",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.У пользователя отсутствует роль администратора:
+[source, JSON]
+....
+HTTP/1.1 403 Forbidden
+
+{
+  "statusCode": 403,
+  "url": "/api/v1/admin/listings",
+  "message": "доступ запрещён: требуется роль администратора",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Непредвиденная ошибка на стороне сервера:
+[source, JSON]
+....
+HTTP/1.1 500 Internal Server Error
+
+{
+  "statusCode": 500,
+  "url": "/api/v1/admin/listings",
+  "message": "внутренняя ошибка сервера, попробуйте позже",
+  "date": "2026-04-17T14:32:00Z"
+}
+....

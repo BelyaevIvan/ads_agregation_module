@@ -1,0 +1,90 @@
+.Параметр `limit` не является числом:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/listings?limit=abc",
+  "message": "параметр 'limit' должен быть положительным числом",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Параметр `limit` превышает допустимый максимум 100:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/listings?limit=500",
+  "message": "параметр 'limit' не может превышать 100",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Параметр `offset` не является числом или отрицателен:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/listings?offset=-5",
+  "message": "параметр 'offset' должен быть неотрицательным",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Параметр `price_min` не является числом:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/listings?price_min=abc",
+  "message": "параметр 'price_min' должен быть числом",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Параметр `sort` содержит недопустимое значение:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/listings?sort=random",
+  "message": "недопустимое значение параметра 'sort'",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Параметр `condition` содержит недопустимое значение:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/listings?condition=old",
+  "message": "параметр 'condition' может быть 'new' или 'used'",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Непредвиденная ошибка на стороне сервера:
+[source, JSON]
+....
+HTTP/1.1 500 Internal Server Error
+
+{
+  "statusCode": 500,
+  "url": "/api/v1/listings",
+  "message": "внутренняя ошибка сервера, попробуйте позже",
+  "date": "2026-04-17T14:32:00Z"
+}
+....

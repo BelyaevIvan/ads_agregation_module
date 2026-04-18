@@ -1,0 +1,16 @@
+POST `/api/v1/users/me/favorites`
+
+Заголовки:
+[source]
+....
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+....
+
+Тело:
+[source, JSON]
+....
+{
+  "listing_id": "5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b"
+}
+....

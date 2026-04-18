@@ -163,31 +163,50 @@ JWT без Redis. Токен живёт 30 дней от момента логи
 docker exec -it brandhunt_postgres psql -U brandhunt -d brandhunt -c "UPDATE users SET role = 'admin' WHERE email = 'your@email.com';"
 ```
 
+### Документация методов
+
+Каждый эндпоинт описан в отдельной папке внутри [`backend/docs/`](backend/docs/) в формате AsciiDoc. Корневой файл — [`backend/docs/index.adoc`](backend/docs/index.adoc).
+
+Структура папки одного метода (имя папки = `<http-метод>-<путь-через-дефисы>`, например `get-listings-id`, `delete-admin-listings-id-photos-id`):
+
+| Файл | Содержимое |
+|---|---|
+| `<folder-name>.adoc` | Главный файл: назначение, входные/выходные параметры, алгоритм работы с подразделами |
+| `request.adoc` | Пример HTTP-запроса |
+| `response-success.adoc` | Пример успешного ответа |
+| `response-errors.adoc` | Все возможные ошибки (400/401/403/404/409/500) в универсальном формате |
+| `diagram.puml` | PlantUML-диаграмма алгоритма, встраивается в главный файл |
+
+Рендеринг: `asciidoctor` + `asciidoctor-diagram` (для PlantUML) или плагины IntelliJ IDEA / VS Code.
+
 ### Эндпоинты
+
+Путь в таблице — ссылка на соответствующую документацию.
 
 | Метод | Путь | Доступ | Описание |
 |---|---|---|---|
-| POST | `/api/v1/auth/register` | Public | Регистрация |
-| POST | `/api/v1/auth/login` | Public | Вход, получение JWT |
-| POST | `/api/v1/auth/logout` | Auth | Выход |
-| GET | `/api/v1/listings` | Public | Поиск и фильтрация объявлений |
-| GET | `/api/v1/listings/{id}` | Public | Карточка объявления |
-| GET | `/api/v1/users/me` | Auth | Профиль пользователя |
-| PUT | `/api/v1/users/me` | Auth | Обновить профиль |
-| GET | `/api/v1/users/me/favorites` | Auth | Список избранного |
-| POST | `/api/v1/users/me/favorites` | Auth | Добавить в избранное |
-| DELETE | `/api/v1/users/me/favorites/{id}` | Auth | Убрать из избранного |
-| GET | `/api/v1/admin/listings` | Admin | Все объявления (вкл. скрытые) |
-| PATCH | `/api/v1/admin/listings/{id}/visibility` | Admin | Скрыть / восстановить |
-| PATCH | `/api/v1/admin/listings/{id}/text` | Admin | Редактировать текст |
-| DELETE | `/api/v1/admin/listings/{id}/photos/{photo_id}` | Admin | Удалить фото |
-| GET | `/api/v1/admin/stats` | Admin | Сводная статистика |
-| GET | `/api/v1/admin/stats/listings-by-day` | Admin | Динамика по дням |
-| GET | `/api/v1/admin/stats/top-brands` | Admin | Топ брендов |
-| GET | `/api/v1/admin/stats/top-cities` | Admin | Топ городов |
-| GET | `/api/v1/admin/sources` | Admin | Список источников |
-| POST | `/api/v1/admin/sources` | Admin | Добавить источник |
-| PATCH | `/api/v1/admin/sources/{id}/toggle` | Admin | Вкл/выкл мониторинг |
+| POST | [`/api/v1/auth/register`](backend/docs/post-auth-register/post-auth-register.adoc) | Public | Регистрация |
+| POST | [`/api/v1/auth/login`](backend/docs/post-auth-login/post-auth-login.adoc) | Public | Вход, получение JWT |
+| POST | [`/api/v1/auth/logout`](backend/docs/post-auth-logout/post-auth-logout.adoc) | Auth | Выход |
+| GET | [`/api/v1/listings`](backend/docs/get-listings/get-listings.adoc) | Public | Поиск и фильтрация объявлений |
+| GET | [`/api/v1/listings/{id}`](backend/docs/get-listings-id/get-listings-id.adoc) | Public | Карточка объявления |
+| GET | [`/api/v1/users/me`](backend/docs/get-users-me/get-users-me.adoc) | Auth | Профиль пользователя |
+| PUT | [`/api/v1/users/me`](backend/docs/put-users-me/put-users-me.adoc) | Auth | Обновить профиль |
+| GET | [`/api/v1/users/me/favorites`](backend/docs/get-users-me-favorites/get-users-me-favorites.adoc) | Auth | Список избранного |
+| POST | [`/api/v1/users/me/favorites`](backend/docs/post-users-me-favorites/post-users-me-favorites.adoc) | Auth | Добавить в избранное |
+| DELETE | [`/api/v1/users/me/favorites/{listing_id}`](backend/docs/delete-users-me-favorites-id/delete-users-me-favorites-id.adoc) | Auth | Убрать из избранного |
+| GET | [`/api/v1/admin/listings`](backend/docs/get-admin-listings/get-admin-listings.adoc) | Admin | Все объявления (вкл. скрытые) |
+| GET | [`/api/v1/admin/listings/{id}`](backend/docs/get-admin-listings-id/get-admin-listings-id.adoc) | Admin | Карточка (вкл. скрытые) |
+| PATCH | [`/api/v1/admin/listings/{id}/visibility`](backend/docs/patch-admin-listings-id-visibility/patch-admin-listings-id-visibility.adoc) | Admin | Скрыть / восстановить |
+| PATCH | [`/api/v1/admin/listings/{id}/text`](backend/docs/patch-admin-listings-id-text/patch-admin-listings-id-text.adoc) | Admin | Редактировать текст |
+| DELETE | [`/api/v1/admin/listings/{id}/photos/{photo_id}`](backend/docs/delete-admin-listings-id-photos-id/delete-admin-listings-id-photos-id.adoc) | Admin | Удалить фото |
+| GET | [`/api/v1/admin/stats`](backend/docs/get-admin-stats/get-admin-stats.adoc) | Admin | Сводная статистика |
+| GET | [`/api/v1/admin/stats/listings-by-day`](backend/docs/get-admin-stats-listings-by-day/get-admin-stats-listings-by-day.adoc) | Admin | Динамика по дням |
+| GET | [`/api/v1/admin/stats/top-brands`](backend/docs/get-admin-stats-top-brands/get-admin-stats-top-brands.adoc) | Admin | Топ брендов |
+| GET | [`/api/v1/admin/stats/top-cities`](backend/docs/get-admin-stats-top-cities/get-admin-stats-top-cities.adoc) | Admin | Топ городов |
+| GET | [`/api/v1/admin/sources`](backend/docs/get-admin-sources/get-admin-sources.adoc) | Admin | Список источников |
+| POST | [`/api/v1/admin/sources`](backend/docs/post-admin-sources/post-admin-sources.adoc) | Admin | Добавить источник |
+| PATCH | [`/api/v1/admin/sources/{id}/toggle`](backend/docs/patch-admin-sources-id-toggle/patch-admin-sources-id-toggle.adoc) | Admin | Вкл/выкл мониторинг |
 
 ---
 

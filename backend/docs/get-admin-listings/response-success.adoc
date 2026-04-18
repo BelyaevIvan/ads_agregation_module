@@ -1,0 +1,32 @@
+.Пример ответа при успешном получении списка объявлений:
+[source, JSON]
+....
+HTTP/1.1 200 OK
+
+{
+  "items": [
+    {
+      "id": "5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b",
+      "brand": "Nike",
+      "model": "Air Max 90",
+      "category": "sneakers",
+      "color": "White",
+      "price": 8500,
+      "city": "Москва",
+      "condition": "new",
+      "size_rus": ["42"],
+      "size_eu": ["42"],
+      "size_us": ["8.5"],
+      "cover_photo_url": "/minio/brandhunt-photos/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b/0.jpg",
+      "platform": "telegram",
+      "source_title": "@sneakers_moscow",
+      "is_hidden": true,
+      "posted_at": "2026-04-17T12:00:00Z",
+      "created_at": "2026-04-17T12:05:00Z"
+    }
+  ],
+  "total": 12847,
+  "limit": 20,
+  "offset": 0
+}
+....

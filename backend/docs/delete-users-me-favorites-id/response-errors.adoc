@@ -1,0 +1,51 @@
+.Параметр `listing_id` имеет некорректный формат UUID:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/users/me/favorites/not-a-uuid",
+  "message": "некорректный формат listing_id",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.JWT-токен отсутствует, невалиден или просрочен:
+[source, JSON]
+....
+HTTP/1.1 401 Unauthorized
+
+{
+  "statusCode": 401,
+  "url": "/api/v1/users/me/favorites/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b",
+  "message": "невалидный или просроченный токен",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Объявление не было в избранном у текущего пользователя:
+[source, JSON]
+....
+HTTP/1.1 404 Not Found
+
+{
+  "statusCode": 404,
+  "url": "/api/v1/users/me/favorites/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b",
+  "message": "объявление не найдено в избранном",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Непредвиденная ошибка на стороне сервера:
+[source, JSON]
+....
+HTTP/1.1 500 Internal Server Error
+
+{
+  "statusCode": 500,
+  "url": "/api/v1/users/me/favorites/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b",
+  "message": "внутренняя ошибка сервера, попробуйте позже",
+  "date": "2026-04-17T14:32:00Z"
+}
+....

@@ -1,0 +1,90 @@
+.Тело запроса не является корректным JSON:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/admin/listings/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b/text",
+  "message": "некорректное тело запроса",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Параметр `id` имеет некорректный формат UUID:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/admin/listings/not-a-uuid/text",
+  "message": "некорректный формат UUID",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Поле `original_text` пустое:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/admin/listings/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b/text",
+  "message": "поле 'original_text' не может быть пустым",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.JWT-токен отсутствует, невалиден или просрочен:
+[source, JSON]
+....
+HTTP/1.1 401 Unauthorized
+
+{
+  "statusCode": 401,
+  "url": "/api/v1/admin/listings/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b/text",
+  "message": "невалидный или просроченный токен",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.У пользователя отсутствует роль администратора:
+[source, JSON]
+....
+HTTP/1.1 403 Forbidden
+
+{
+  "statusCode": 403,
+  "url": "/api/v1/admin/listings/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b/text",
+  "message": "доступ запрещён: требуется роль администратора",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Объявление с указанным `id` не найдено:
+[source, JSON]
+....
+HTTP/1.1 404 Not Found
+
+{
+  "statusCode": 404,
+  "url": "/api/v1/admin/listings/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b/text",
+  "message": "объявление не найдено",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Непредвиденная ошибка на стороне сервера:
+[source, JSON]
+....
+HTTP/1.1 500 Internal Server Error
+
+{
+  "statusCode": 500,
+  "url": "/api/v1/admin/listings/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b/text",
+  "message": "внутренняя ошибка сервера, попробуйте позже",
+  "date": "2026-04-17T14:32:00Z"
+}
+....

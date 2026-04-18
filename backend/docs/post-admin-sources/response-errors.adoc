@@ -1,0 +1,90 @@
+.Не удалось распарсить тело запроса (некорректный JSON):
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/admin/sources",
+  "message": "некорректное тело запроса",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Поле `platform` имеет недопустимое значение:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/admin/sources",
+  "message": "platform должен быть 'telegram' или 'vk'",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Поле `external_id` не указано или пустое:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/admin/sources",
+  "message": "external_id обязателен",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Токен авторизации отсутствует, невалиден или просрочен:
+[source, JSON]
+....
+HTTP/1.1 401 Unauthorized
+
+{
+  "statusCode": 401,
+  "url": "/api/v1/admin/sources",
+  "message": "невалидный или просроченный токен",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.У пользователя отсутствует роль администратора:
+[source, JSON]
+....
+HTTP/1.1 403 Forbidden
+
+{
+  "statusCode": 403,
+  "url": "/api/v1/admin/sources",
+  "message": "доступ запрещён: требуется роль администратора",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Источник с такой парой (platform, external_id) уже существует:
+[source, JSON]
+....
+HTTP/1.1 409 Conflict
+
+{
+  "statusCode": 409,
+  "url": "/api/v1/admin/sources",
+  "message": "источник с такой комбинацией platform/external_id уже существует",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Непредвиденная ошибка на стороне сервера:
+[source, JSON]
+....
+HTTP/1.1 500 Internal Server Error
+
+{
+  "statusCode": 500,
+  "url": "/api/v1/admin/sources",
+  "message": "внутренняя ошибка сервера, попробуйте позже",
+  "date": "2026-04-17T14:32:00Z"
+}
+....

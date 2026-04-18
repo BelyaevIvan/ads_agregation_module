@@ -1,0 +1,40 @@
+.Пример ответа при успешном получении карточки объявления:
+[source, JSON]
+....
+HTTP/1.1 200 OK
+
+{
+  "id": "5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b",
+  "source": {
+    "platform": "telegram",
+    "title": "@sneakers_moscow",
+    "external_id": "-1001234567890"
+  },
+  "original_text": "Продаю Nike Air Max 90 белые 42 размер. Состояние идеальное, носили 2 раза. Цена 8500, торг уместен. Самовывоз м. Таганская.",
+  "post_url": "https://t.me/sneakers_moscow/123",
+  "posted_at": "2026-04-17T12:00:00Z",
+  "brand": "Nike",
+  "model": "Air Max 90",
+  "category": "sneakers",
+  "color": "White",
+  "price": 8500,
+  "city": "Москва",
+  "condition": "new",
+  "size_rus": ["42", "43"],
+  "size_eu": ["42"],
+  "size_us": ["8.5"],
+  "photos": [
+    {
+      "url": "/minio/brandhunt-photos/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b/0.jpg",
+      "is_cover": true,
+      "sort_order": 0
+    },
+    {
+      "url": "/minio/brandhunt-photos/5a7f3c8e-1b2d-4e5f-8a9b-0c1d2e3f4a5b/1.jpg",
+      "is_cover": false,
+      "sort_order": 1
+    }
+  ],
+  "created_at": "2026-04-17T12:05:00Z"
+}
+....

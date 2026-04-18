@@ -1,0 +1,15 @@
+.Пример ответа при успешном получении топа брендов:
+[source, JSON]
+....
+HTTP/1.1 200 OK
+
+{
+  "items": [
+    { "brand": "Nike", "count": 3241 },
+    { "brand": "New Balance", "count": 2347 },
+    { "brand": "Adidas", "count": 1982 },
+    { "brand": "Puma", "count": 1205 },
+    { "brand": "Asics", "count": 876 }
+  ]
+}
+....

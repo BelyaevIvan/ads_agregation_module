@@ -1,0 +1,51 @@
+.Тело запроса не является валидным JSON:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/auth/login",
+  "message": "некорректное тело запроса",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Поле `email` или `password` не передано:
+[source, JSON]
+....
+HTTP/1.1 400 Bad Request
+
+{
+  "statusCode": 400,
+  "url": "/api/v1/auth/login",
+  "message": "email и пароль обязательны",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Пользователь с указанным email не найден или пароль не совпадает:
+[source, JSON]
+....
+HTTP/1.1 401 Unauthorized
+
+{
+  "statusCode": 401,
+  "url": "/api/v1/auth/login",
+  "message": "неверный email или пароль",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Непредвиденная ошибка на стороне сервера:
+[source, JSON]
+....
+HTTP/1.1 500 Internal Server Error
+
+{
+  "statusCode": 500,
+  "url": "/api/v1/auth/login",
+  "message": "внутренняя ошибка сервера, попробуйте позже",
+  "date": "2026-04-17T14:32:00Z"
+}
+....

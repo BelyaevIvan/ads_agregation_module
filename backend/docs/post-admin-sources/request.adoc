@@ -1,0 +1,13 @@
+POST `/api/v1/admin/sources`
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+
+[source, JSON]
+....
+{
+  "platform": "telegram",
+  "external_id": "-1001234567890",
+  "title": "@sneakers_moscow"
+}
+....
