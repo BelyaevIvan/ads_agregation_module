@@ -63,6 +63,7 @@ func (r *FavoriteRepo) List(userID string, limit, offset int) ([]model.FavoriteW
 		if f.Listing.SizeUS == nil {
 			f.Listing.SizeUS = []string{}
 		}
+		rewritePhotoURLPtr(f.Listing.CoverPhotoURL)
 		items = append(items, f)
 	}
 	if items == nil {

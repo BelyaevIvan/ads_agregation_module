@@ -63,6 +63,24 @@ func (h *AdminHandler) AdminListings(w http.ResponseWriter, r *http.Request) err
 	})
 }
 
+// GetListing handles GET /api/v1/admin/listings/{id} — возвращает объявление целиком,
+// включая скрытые. Нужен админ-панели, чтобы читать original_text и фото у скрытых
+// объявлений (публичный /listings/{id} их не отдаёт).
+func (h *AdminHandler) GetListing(w http.ResponseWriter, r *http.Request) error {
+	if r.Method != http.MethodGet {
+		return middleware.NewAppError(http.StatusMethodNotAllowed, "метод не поддерживается")
+	}
+
+	id := strings.TrimPrefix(r.URL.Path, "/api/v1/admin/listings/")
+	id = strings.TrimSuffix(id, "/")
+
+	detail, err := h.listings.AdminGetByID(id)
+	if err != nil {
+		return err
+	}
+	return middleware.JSON(w, http.StatusOK, detail)
+}
+
 // Visibility handles PATCH /api/v1/admin/listings/{id}/visibility
 func (h *AdminHandler) Visibility(w http.ResponseWriter, r *http.Request) error {
 	if r.Method != http.MethodPatch {

@@ -75,8 +75,58 @@ brandhunt/
 │       ├── Dockerfile
 │       └── requirements.txt
 │
-└── frontend/                       # структура обсуждается позже
+└── frontend/                       # SPA на React + Vite
+    ├── Dockerfile                  # multi-stage: node builder → nginx
+    ├── nginx.conf                  # proxy /api → api:8080, SPA fallback
+    ├── package.json
+    ├── vite.config.js
+    ├── index.html
+    └── src/
+        ├── main.jsx                # точка входа, монтирует App в #root
+        ├── App.jsx                 # корневой роутер (react-router)
+        ├── api/                    # HTTP-клиент (слой доступа к бэку)
+        │   ├── client.js           # fetch-обёртка: JWT, тост при ошибке
+        │   ├── auth.js             # register/login/logout/me/updateMe
+        │   ├── listings.js         # search, getById
+        │   ├── favorites.js        # list/add/remove
+        │   └── admin.js            # все админские методы
+        ├── contexts/               # глобальное состояние через Context API
+        │   ├── AuthContext.jsx     # user + токен в localStorage
+        │   └── ToastContext.jsx    # очередь тостов (ошибки/успех)
+        ├── components/             # переиспользуемые UI-блоки
+        │   ├── common/             # Navbar, Toast, Spinner, Pagination,
+        │   │                       # ProtectedRoute, AdminRoute, EmptyState
+        │   ├── listings/           # ListingCard, FiltersPanel
+        │   └── admin/              # EditTextModal, PhotosModal, AddSourceModal
+        ├── pages/                  # одна папка = один роут
+        │   ├── HomePage.jsx
+        │   ├── SearchResultsPage.jsx
+        │   ├── ListingDetailPage.jsx
+        │   ├── AuthPage.jsx        # единый экран с табами вход/регистрация
+        │   ├── ProfilePage.jsx     # данные + избранное
+        │   ├── ForbiddenPage.jsx   # 403
+        │   ├── NotFoundPage.jsx    # 404 (fallback-роут)
+        │   └── admin/              # админ-зона (защищена AdminRoute)
+        │       ├── AdminLayout.jsx
+        │       ├── DashboardPage.jsx
+        │       ├── AdminListingsPage.jsx
+        │       └── SourcesPage.jsx
+        ├── utils/
+        │   └── format.js           # формат цен, дат, инициалов
+        └── styles/
+            └── index.css           # глобальные стили (перенесены из прототипа)
 ```
+
+### Архитектура фронтенда
+
+**3-слойная структура:** `api/` → `contexts/` → `pages/` + `components/`.
+- **api/** — единственная точка выхода в сеть. `client.js` сам подставляет JWT, при любой HTTP-ошибке вызывает глобальный коллбэк (который показывает тост). Методы с `silentError: true` не триггерят тост (напр. логин — ошибку 401 показываем inline в форме).
+- **contexts/** — `AuthContext` хранит `user` и токен (в `localStorage` + в памяти), вызывает `authApi` под капотом. `ToastContext` — очередь уведомлений с авто-закрытием.
+- **components/** — «глупые» компоненты: UI + минимум логики. **pages/** — композиция: получает данные через API/контексты, собирает компоненты.
+- **Роутинг:** `react-router-dom` v6. `ProtectedRoute` редиректит на `/auth` если не залогинен. `AdminRoute` ещё и на `/403` если роль не `admin`.
+
+### Обработка ошибок на фронте
+При любом ответе не-2xx из API в правом верхнем углу появляется тост **«Ошибка. Не удалось выполнить запрос»** (длительность 5с). Сообщение от сервера (`data.message`) показывается вторичным текстом. Это позволяет пользователю понять, что запрос не удался, а разработчику — сразу открыть DevTools → Network. Исключения: логин/регистрация/профиль показывают inline-ошибку в форме (флаг `silentError`).
  
 ### Ключевые архитектурные решения
  
