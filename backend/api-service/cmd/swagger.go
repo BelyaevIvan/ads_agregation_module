@@ -498,6 +498,30 @@ const swaggerSpec = `{
           "404": { "description": "Источник не найден" }
         }
       }
+    },
+    "/filters/sizes": {
+      "get": {
+        "tags": ["Filters"],
+        "summary": "Уникальные размеры из активных объявлений",
+        "description": "Возвращает все размеры (RUS/EU/US), встречающиеся в активных объявлениях. Используется фронтом для построения UI-фильтров. Кэшируется на 5 минут.",
+        "responses": {
+          "200": {
+            "description": "Списки размеров по каждой размерной сетке",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "size_rus": { "type": "array", "items": { "type": "string" } },
+                    "size_eu":  { "type": "array", "items": { "type": "string" } },
+                    "size_us":  { "type": "array", "items": { "type": "string" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }`

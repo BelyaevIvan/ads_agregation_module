@@ -207,6 +207,7 @@ docker exec -it brandhunt_postgres psql -U brandhunt -d brandhunt -c "UPDATE use
 | GET | [`/api/v1/admin/sources`](backend/docs/get-admin-sources/get-admin-sources.adoc) | Admin | Список источников |
 | POST | [`/api/v1/admin/sources`](backend/docs/post-admin-sources/post-admin-sources.adoc) | Admin | Добавить источник |
 | PATCH | [`/api/v1/admin/sources/{id}/toggle`](backend/docs/patch-admin-sources-id-toggle/patch-admin-sources-id-toggle.adoc) | Admin | Вкл/выкл мониторинг |
+| GET | [`/api/v1/filters/sizes`](backend/docs/get-filters-sizes/get-filters-sizes.adoc) | Public | Доступные размеры из активных объявлений |
 
 ---
 

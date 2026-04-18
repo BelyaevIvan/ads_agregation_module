@@ -51,3 +51,7 @@
 * <<get-admin-sources/get-admin-sources.adoc#, GET /admin/sources — Список источников мониторинга>>
 * <<post-admin-sources/post-admin-sources.adoc#, POST /admin/sources — Добавить источник>>
 * <<patch-admin-sources-id-toggle/patch-admin-sources-id-toggle.adoc#, PATCH /admin/sources/{id}/toggle — Включить / отключить источник>>
+
+== Фильтры
+
+* <<get-filters-sizes/get-filters-sizes.adoc#, GET /filters/sizes — Доступные размеры из активных объявлений>>
