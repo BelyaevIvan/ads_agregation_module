@@ -140,22 +140,33 @@ def wait_for_db(retries=12, delay=5):
     raise RuntimeError("Не удалось подключиться к БД")
 
 
-ALL_GROUPS = {g["id"]: g.get("name", str(g["id"])) for g in VK_GROUPS}
+# Группы из .env используются как seed-набор при старте — они upsert-ятся в БД,
+# чтобы список в админке гарантированно содержал всё из конфига. Но мониторим
+# мы ПОЛНЫЙ активный набор из БД — поэтому группы, добавленные через UI
+# (POST /admin/sources), тоже попадают в обработку без рестарта .env.
+ENV_GROUPS = {g["id"]: g.get("name", str(g["id"])) for g in VK_GROUPS}
 
 def sync_sources_and_get_active():
-    """Upsert все группы из .env, вернуть только активные."""
+    """1) Seed: upsert групп из .env. 2) Вернуть все активные VK-источники из БД."""
     conn = db.get_connection()
     try:
-        for gid, gname in ALL_GROUPS.items():
+        for gid, gname in ENV_GROUPS.items():
             db.upsert_source(conn, "vk", str(gid), gname)
         conn.commit()
-        active_ext_ids = db.get_active_sources(conn, "vk")
+        rows = db.get_active_sources_full(conn, "vk")
     finally:
         conn.close()
-    active = {gid: gname for gid, gname in ALL_GROUPS.items() if str(gid) in active_ext_ids}
-    logger.info("Активные VK-источники: %d/%d %s",
-                len(active), len(ALL_GROUPS),
-                [name for name in active.values()])
+
+    active: dict[int, str] = {}
+    for ext_id, title in rows:
+        try:
+            gid = int(ext_id)
+        except (TypeError, ValueError):
+            logger.warning("VK: пропущен источник с невалидным external_id=%r", ext_id)
+            continue
+        active[gid] = title or ENV_GROUPS.get(gid) or str(gid)
+
+    logger.info("Активные VK-источники: %d %s", len(active), list(active.values()))
     return active
 
 

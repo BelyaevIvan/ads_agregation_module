@@ -59,17 +59,29 @@ ACTIVE_CHANNELS_REFRESH = 60  # секунд
 
 
 def sync_sources_and_get_active() -> set[int]:
-    """Upsert все каналы из .env, вернуть только активные."""
+    """1) Seed: upsert каналов из .env. 2) Вернуть все активные TG-каналы из БД.
+
+    Канал, добавленный только через админский UI, тоже будет обрабатываться —
+    при условии, что Telegram-аккаунт за сессией уже состоит в этом канале
+    (Telethon принимает события только из чатов, куда юзер вступил).
+    """
     conn = db.get_connection()
     try:
         for ch_id in TG_WATCHED_CHANNELS:
             db.upsert_source(conn, "telegram", str(ch_id))
         conn.commit()
-        active_ext_ids = db.get_active_sources(conn, "telegram")
+        rows = db.get_active_sources_full(conn, "telegram")
     finally:
         conn.close()
-    result = {ch for ch in TG_WATCHED_CHANNELS if str(ch) in active_ext_ids}
-    logger.info("Активные TG-источники: %d/%d", len(result), len(TG_WATCHED_CHANNELS))
+
+    result: set[int] = set()
+    for ext_id, _title in rows:
+        try:
+            result.add(int(ext_id))
+        except (TypeError, ValueError):
+            logger.warning("TG: пропущен источник с невалидным external_id=%r", ext_id)
+
+    logger.info("Активные TG-источники: %d", len(result))
     return result
 
 
