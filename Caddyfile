@@ -1,0 +1,19 @@
+# Единая конфигурация для local и prod.
+# Домен берётся из переменной DOMAIN в .env:
+#   - brandhunt.localhost → Caddy автоматически использует self-signed cert
+#   - brandhunt.ru (или любой публичный)  → Caddy сам получит Let's Encrypt
+
+{$DOMAIN} {
+    encode gzip zstd
+
+    # Весь трафик уходит в frontend-контейнер, а внутри nginx уже
+    # раздаёт SPA и проксирует /api/ → api:8080, /minio/ → minio:9000.
+    reverse_proxy frontend:80
+
+    # Заголовки безопасности — мелочь, но пусть будет.
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy strict-origin-when-cross-origin
+    }
+}

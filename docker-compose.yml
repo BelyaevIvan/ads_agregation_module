@@ -87,6 +87,29 @@ services:
     depends_on:
       - api
 
+  # ── Caddy: домен + HTTPS ───────────────────────────────────────────────
+  # Слушает 80/443 (на локалке — порты из CADDY_HTTP_PORT/CADDY_HTTPS_PORT),
+  # проксирует на frontend:80 внутри docker-сети.
+  # Для .localhost — self-signed, для публичного домена — Let's Encrypt.
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: brandhunt_caddy
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DOMAIN: ${DOMAIN:-brandhunt.localhost}
+    ports:
+      - "${CADDY_HTTP_PORT:-80}:80"
+      - "${CADDY_HTTPS_PORT:-443}:443"
+      - "${CADDY_HTTPS_PORT:-443}:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+
   # ── Мониторинг ─────────────────────────────────────────────────────────
   # Модель ollama скачивается один раз вручную:
   #   docker exec -it brandhunt_ollama ollama pull gemma3:4b
@@ -139,3 +162,5 @@ volumes:
   ollama_data:
   tg_sessions:
   vk_data:
+  caddy_data:
+  caddy_config:

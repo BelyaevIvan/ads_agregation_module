@@ -289,6 +289,7 @@ select {
   height: fit-content;
   position: sticky;
   top: 80px;
+  z-index: 10;
 }
 .filters-title {
   font-family: 'Unbounded', sans-serif;
@@ -374,6 +375,20 @@ select {
   color: var(--c-muted);
   font-style: italic;
 }
+.size-toggle {
+  background: none;
+  border: none;
+  color: #a89cff;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 4px 0 0;
+  margin-bottom: 10px;
+  text-align: left;
+  font-family: inherit;
+}
+.size-toggle:hover {
+  text-decoration: underline;
+}
 .filter-label-row {
   display: flex;
   align-items: center;
@@ -416,7 +431,7 @@ select {
   font-size: 11px;
   color: var(--c-muted);
   line-height: 1.5;
-  z-index: 300;
+  z-index: 1000;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 .tooltip-box b {

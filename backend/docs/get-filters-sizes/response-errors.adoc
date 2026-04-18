@@ -1,0 +1,25 @@
+.Метод не поддерживает указанный HTTP-метод (например, POST):
+[source, JSON]
+....
+HTTP/1.1 405 Method Not Allowed
+
+{
+  "statusCode": 405,
+  "url": "/api/v1/filters/sizes",
+  "message": "метод не поддерживается",
+  "date": "2026-04-17T14:32:00Z"
+}
+....
+
+.Непредвиденная ошибка на стороне сервера (БД недоступна и т.п.):
+[source, JSON]
+....
+HTTP/1.1 500 Internal Server Error
+
+{
+  "statusCode": 500,
+  "url": "/api/v1/filters/sizes",
+  "message": "внутренняя ошибка сервера, попробуйте позже",
+  "date": "2026-04-17T14:32:00Z"
+}
+....

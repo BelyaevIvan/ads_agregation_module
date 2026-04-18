@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react';
-
-const SIZE_RUS = ['40', '41', '42', '43', '44', '45'];
-const SIZE_EU = ['40', '41', '42', '43', '44', '45'];
-const SIZE_US = ['7', '7.5', '8', '8.5', '9', '9.5', '10'];
+import { useSizeFilters } from '../../contexts/FiltersContext';
 
 function toggleInArray(arr, value) {
   return arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
@@ -47,14 +44,30 @@ function NullCheckbox({ checked, onChange, label }) {
   );
 }
 
+const SIZE_SCALES = [
+  { key: 'size_rus', label: 'RUS' },
+  { key: 'size_eu', label: 'EU' },
+  { key: 'size_us', label: 'US' },
+];
+const SIZES_PREVIEW = 4; // сколько размеров показывать в свёрнутом виде
+
 export default function FiltersPanel({ value, onApply, isOpen, onToggleOpen }) {
+  const { sizes } = useSizeFilters();
   const [local, setLocal] = useState(value);
+  const [expanded, setExpanded] = useState({}); // { size_rus: true, ... }
 
   useEffect(() => {
     setLocal(value);
   }, [value]);
 
   const patch = (p) => setLocal((v) => ({ ...v, ...p }));
+  const toggleExpanded = (key) =>
+    setExpanded((e) => ({ ...e, [key]: !e[key] }));
+
+  // Показываем секцию размеров, только если уже подтянули данные с бэка
+  // и хотя бы в одной сетке есть хоть один размер. До этого — не рендерим.
+  const hasAnySizes =
+    sizes && (sizes.size_rus.length || sizes.size_eu.length || sizes.size_us.length);
 
   const apply = () => {
     onApply(local);
@@ -101,93 +114,83 @@ export default function FiltersPanel({ value, onApply, isOpen, onToggleOpen }) {
           </div>
         </div>
 
-        <div className="filter-group">
-          <div className="filter-label-row">
-            <span className="filter-label" style={{ marginBottom: 0 }}>
-              Размер
-            </span>
-            <div className="tooltip-wrap">
-              <div className="tooltip-icon">?</div>
-              <div className="tooltip-box">
-                <b>Размеры не конвертируются автоматически.</b> Если укажете только RUS 43,
-                объявления с EU 43 или US 9.5 не попадут в выборку. Для максимального охвата
-                выбирайте размеры во <b>всех трёх сетках</b>.
+        {hasAnySizes && (
+          <div className="filter-group">
+            <div className="filter-label-row">
+              <span className="filter-label" style={{ marginBottom: 0 }}>
+                Размер
+              </span>
+              <div className="tooltip-wrap">
+                <div className="tooltip-icon">?</div>
+                <div className="tooltip-box">
+                  <b>Размеры не конвертируются автоматически.</b> Если укажете только RUS 43,
+                  объявления с EU 43 или US 9.5 не попадут в выборку. Для максимального охвата
+                  выбирайте размеры во <b>всех трёх сетках</b>.
+                </div>
               </div>
             </div>
-          </div>
 
-          <div
-            style={{
-              fontSize: 11,
-              color: 'var(--c-muted)',
-              marginBottom: 8,
-              textTransform: 'uppercase',
-              letterSpacing: 0.5,
-            }}
-          >
-            RUS
-          </div>
-          <div className="filter-options">
-            {SIZE_RUS.map((s) => (
-              <Checkbox
-                key={`r${s}`}
-                checked={local.size_rus.includes(s)}
-                onChange={() => patch({ size_rus: toggleInArray(local.size_rus, s) })}
-                label={s}
-              />
-            ))}
-          </div>
+            {SIZE_SCALES.map(({ key, label }) => {
+              const list = sizes[key];
+              if (!list.length) return null;
 
-          <div
-            style={{
-              fontSize: 11,
-              color: 'var(--c-muted)',
-              margin: '10px 0 8px',
-              textTransform: 'uppercase',
-              letterSpacing: 0.5,
-            }}
-          >
-            EU
-          </div>
-          <div className="filter-options">
-            {SIZE_EU.map((s) => (
-              <Checkbox
-                key={`e${s}`}
-                checked={local.size_eu.includes(s)}
-                onChange={() => patch({ size_eu: toggleInArray(local.size_eu, s) })}
-                label={s}
-              />
-            ))}
-          </div>
+              // Автоматически раскрываем сетку, если в ней есть выбранный размер,
+              // который не попал бы в превью — иначе галочка была бы скрыта.
+              const selected = local[key];
+              const hasSelectedBeyondPreview = selected.some(
+                (s) => list.indexOf(s) >= SIZES_PREVIEW
+              );
+              const isOpen = expanded[key] || hasSelectedBeyondPreview;
+              const visible = isOpen ? list : list.slice(0, SIZES_PREVIEW);
+              const canToggle = list.length > SIZES_PREVIEW && !hasSelectedBeyondPreview;
 
-          <div
-            style={{
-              fontSize: 11,
-              color: 'var(--c-muted)',
-              margin: '10px 0 8px',
-              textTransform: 'uppercase',
-              letterSpacing: 0.5,
-            }}
-          >
-            US
-          </div>
-          <div className="filter-options">
-            {SIZE_US.map((s) => (
-              <Checkbox
-                key={`u${s}`}
-                checked={local.size_us.includes(s)}
-                onChange={() => patch({ size_us: toggleInArray(local.size_us, s) })}
-                label={s}
-              />
-            ))}
-          </div>
+              return (
+                <div key={key}>
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: 'var(--c-muted)',
+                      margin: '0 0 8px',
+                      textTransform: 'uppercase',
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    {label}
+                  </div>
+                  <div className="filter-options">
+                    {visible.map((s) => (
+                      <Checkbox
+                        key={`${key}-${s}`}
+                        checked={selected.includes(s)}
+                        onChange={() => patch({ [key]: toggleInArray(selected, s) })}
+                        label={s}
+                      />
+                    ))}
+                  </div>
+                  {canToggle ? (
+                    <button
+                      type="button"
+                      className="size-toggle"
+                      onClick={() => toggleExpanded(key)}
+                    >
+                      {isOpen
+                        ? '← Свернуть'
+                        : `Показать все (${list.length}) →`}
+                    </button>
+                  ) : (
+                    <div style={{ height: 10 }} />
+                  )}
+                </div>
+              );
+            })}
 
-          <NullCheckbox
-            checked={local.include_no_size}
-            onChange={(c) => patch({ include_no_size: c })}
-            label="+ показывать без указания размера"
-          />
-        </div>
+            <NullCheckbox
+              checked={local.include_no_size}
+              onChange={(c) => patch({ include_no_size: c })}
+              label="+ показывать без указания размера"
+            />
+          </div>
+        )}
 
         <div className="filter-group">
           <div className="filter-label">Цена, ₽</div>

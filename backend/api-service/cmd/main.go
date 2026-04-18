@@ -72,6 +72,7 @@ func main() {
 	sourceRepo := repository.NewSourceRepo(db)
 	statsRepo := repository.NewStatsRepo(db)
 	photoRepo := repository.NewPhotoRepo(db)
+	filtersRepo := repository.NewFiltersRepo(db)
 
 	// Services
 	authSvc := service.NewAuthService(userRepo, cfg.JWTSecret)
@@ -81,6 +82,7 @@ func main() {
 	sourceSvc := service.NewSourceService(sourceRepo)
 	statsSvc := service.NewStatsService(statsRepo)
 	photoSvc := service.NewPhotoService(photoRepo, listingRepo, minioClient, cfg.MinioBucket)
+	filtersSvc := service.NewFiltersService(filtersRepo)
 
 	// Handlers
 	authH := handler.NewAuthHandler(authSvc)
@@ -88,6 +90,7 @@ func main() {
 	listingH := handler.NewListingHandler(listingSvc)
 	favoriteH := handler.NewFavoriteHandler(favoriteSvc)
 	adminH := handler.NewAdminHandler(listingSvc, sourceSvc, statsSvc, photoSvc)
+	filtersH := handler.NewFiltersHandler(filtersSvc)
 
 	// Middleware shortcuts
 	E := middleware.ErrorHandler
@@ -103,6 +106,9 @@ func main() {
 	// Listings: route /api/v1/listings exactly vs /api/v1/listings/{id}
 	mux.HandleFunc("/api/v1/listings", E(listingH.Search))
 	mux.HandleFunc("/api/v1/listings/", E(listingH.GetByID))
+
+	// Filters (meta-информация для UI-фильтров)
+	mux.HandleFunc("/api/v1/filters/sizes", E(filtersH.Sizes))
 
 	// ── Auth required ───────────────────────────────────
 	mux.HandleFunc("/api/v1/auth/logout", E(auth(authH.Logout)))
