@@ -68,6 +68,27 @@ Swagger UI: **http://localhost:3000/swagger/**
 docker compose up -d tg-monitor vk-monitor
 ```
 
+### 7. Подготовить и запустить фронтенд
+
+Один раз — поставить зависимости на хост (нужно для `package-lock.json` и для IDE):
+
+```bash
+cd frontend
+npm install --registry=https://registry.npmmirror.com
+cd ..
+```
+
+Потом собрать и запустить nginx-образ:
+
+```bash
+docker compose build frontend
+docker compose up -d frontend
+```
+
+Открыть в браузере: **http://localhost:8080** (порт настраивается через `FRONTEND_PORT` в `.env`).
+
+Подробнее про режимы работы (dev-сервер vs prod-nginx) — в разделе [Фронтенд](#фронтенд) ниже.
+
 ---
 
 ## Обычный запуск (после первого раза)
@@ -214,5 +235,94 @@ ads_agregation_module/
 │       ├── storage.py
 │       ├── config.py
 │       └── auth_tg.py
+├── frontend/                   # SPA на React + Vite
+│   ├── Dockerfile              # multi-stage: node builder → nginx
+│   ├── nginx.conf
+│   └── src/
+│       ├── api/                # HTTP-клиент (fetch + JWT + тосты)
+│       ├── contexts/           # AuthContext, ToastContext
+│       ├── components/         # UI-компоненты (common/listings/admin)
+│       ├── pages/              # экраны (Home, Search, Product, Auth, Profile, admin/)
+│       └── styles/             # глобальные стили
 └── claude-instructions/        # контекст для разработки
 ```
+
+---
+
+## Фронтенд
+
+SPA на **React 18 + Vite + React Router**, без TypeScript. В продакшене раздаётся `nginx`, который также проксирует `/api/*` на `api`-сервис внутри docker-сети (один origin → без CORS).
+
+### Первый запуск: установка зависимостей
+
+Один раз надо выполнить локально на хосте:
+
+```bash
+cd frontend
+npm install --registry=https://registry.npmmirror.com
+```
+
+Это создаст:
+- `node_modules/` — библиотеки (в git не коммитится)
+- `package-lock.json` — фиксация точных версий (**коммитится**, нужен для детерминированных сборок в Docker и CI)
+
+Из РФ `registry.npmjs.org` часто лагает — флаг `--registry` переключает на зеркало, ставится за ~1 минуту.
+
+> `node_modules` нужен локально для подсветки кода, автокомплита и ESLint в IDE — поэтому даже если ты планируешь работать только через Docker, один `npm install` на хосте обязателен.
+
+### Вариант А — dev-сервер Vite (для разработки)
+
+```bash
+cd frontend
+npm run dev
+```
+
+Открыть: **http://localhost:5173**
+
+Что работает:
+- Hot-reload — правки в коде применяются мгновенно, без пересборки
+- Прокси `/api/*` → `http://localhost:3000` (адрес бэка), поэтому браузер видит всё как один origin
+- Читаемые ошибки прямо в браузере
+
+API при этом должен крутиться в Docker:
+```bash
+docker compose up -d postgres minio api
+```
+
+### Вариант Б — «как на проде» (nginx в Docker)
+
+```bash
+docker compose build frontend
+docker compose up -d frontend
+```
+
+Открыть: **http://localhost:8080** (порт настраивается через `FRONTEND_PORT` в `.env`)
+
+Первая сборка образа — пара минут (скачивание пакетов). Последующие — секунды, пока не меняется `package-lock.json` (Docker переиспользует закэшированный слой).
+
+### URL-ы для проверки работы
+
+| Что | URL | Описание |
+|---|---|---|
+| Фронт (prod) | http://localhost:8080 | nginx раздаёт SPA |
+| Фронт (dev) | http://localhost:5173 | Vite dev server |
+| API health | http://localhost:3000/health | должен ответить `{"status":"ok"}` |
+| Swagger UI | http://localhost:3000/swagger/ | интерактивный тест всех эндпоинтов |
+| MinIO Console | http://localhost:9001 | веб-интерфейс хранилища фото |
+
+Быстрый sanity-check после запуска:
+```bash
+# все контейнеры живы и healthy
+docker compose ps
+
+# бэк отвечает
+curl http://localhost:3000/health
+
+# в браузере открыть http://localhost:8080 — видим главную BrandHunt
+```
+
+### Обработка ошибок
+
+При любой неудачной операции (не-2xx от API) в правом верхнем углу всплывает тост **«Ошибка. Не удалось выполнить запрос»**. Вторым текстом — сообщение сервера. Удобно открыть DevTools → Network и сразу увидеть, какой запрос упал.
+
+Исключения — логин, регистрация, сохранение профиля: ошибки показываются inline в самой форме.

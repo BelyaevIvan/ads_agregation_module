@@ -60,6 +60,11 @@ func main() {
 		minioClient = nil
 	}
 
+	// Фото MinIO отдаются через nginx-proxy на /minio/, чтобы браузер
+	// не видел внутренний docker-хост minio:9000. Репозиторий переписывает
+	// URL в ответах на лету.
+	repository.SetMinioEndpoint(cfg.MinioEndpoint)
+
 	// Repositories
 	userRepo := repository.NewUserRepo(db)
 	listingRepo := repository.NewListingRepo(db)
@@ -169,8 +174,12 @@ func adminRouter(h *handler.AdminHandler) middleware.HandlerFunc {
 			return h.EditText(w, r)
 		case strings.Contains(path, "/photos/"):
 			return h.DeletePhoto(w, r)
-		default:
-			return middleware.NewAppError(http.StatusNotFound, "маршрут не найден")
 		}
+		// /api/v1/admin/listings/{id} или /api/v1/admin/listings/{id}/ — без суффикса
+		rest := strings.TrimSuffix(strings.TrimPrefix(path, "/api/v1/admin/listings/"), "/")
+		if rest != "" && !strings.Contains(rest, "/") {
+			return h.GetListing(w, r)
+		}
+		return middleware.NewAppError(http.StatusNotFound, "маршрут не найден")
 	}
 }

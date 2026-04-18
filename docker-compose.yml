@@ -76,6 +76,17 @@ services:
       minio:
         condition: service_healthy
 
+  # ── Фронтенд ───────────────────────────────────────────────────────────
+
+  frontend:
+    build: ./frontend
+    container_name: brandhunt_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    depends_on:
+      - api
+
   # ── Мониторинг ─────────────────────────────────────────────────────────
   # Модель ollama скачивается один раз вручную:
   #   docker exec -it brandhunt_ollama ollama pull gemma3:4b

@@ -298,6 +298,20 @@ const swaggerSpec = `{
         }
       }
     },
+    "/admin/listings/{id}": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Карточка объявления (включая скрытые)",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }
+        ],
+        "responses": {
+          "200": { "description": "Карточка объявления" },
+          "404": { "description": "Объявление не найдено" }
+        }
+      }
+    },
     "/admin/listings/{id}/visibility": {
       "patch": {
         "tags": ["Admin"],

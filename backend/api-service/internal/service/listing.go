@@ -61,6 +61,21 @@ func (s *ListingService) GetByID(id string) (*model.ListingDetail, error) {
 	return detail, nil
 }
 
+// AdminGetByID возвращает объявление целиком, включая скрытые. Для админской панели.
+func (s *ListingService) AdminGetByID(id string) (*model.ListingDetail, error) {
+	if !IsValidUUID(id) {
+		return nil, middleware.NewAppError(http.StatusBadRequest, "некорректный формат UUID")
+	}
+	detail, err := s.listings.GetByIDAdmin(id)
+	if err != nil {
+		return nil, err
+	}
+	if detail == nil {
+		return nil, middleware.NewAppError(http.StatusNotFound, "объявление не найдено")
+	}
+	return detail, nil
+}
+
 func (s *ListingService) SetVisibility(id string, isHidden *bool) error {
 	if !IsValidUUID(id) {
 		return middleware.NewAppError(http.StatusBadRequest, "некорректный формат UUID")

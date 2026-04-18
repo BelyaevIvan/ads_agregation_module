@@ -193,6 +193,7 @@ func (r *ListingRepo) Search(p *model.ListingSearchParams) ([]model.ListingListI
 		if it.SizeEU == nil {
 			it.SizeEU = []string{}
 		}
+		rewritePhotoURLPtr(it.CoverPhotoURL)
 		items = append(items, it)
 	}
 	if items == nil {
@@ -202,14 +203,27 @@ func (r *ListingRepo) Search(p *model.ListingSearchParams) ([]model.ListingListI
 }
 
 func (r *ListingRepo) GetByID(id string) (*model.ListingDetail, error) {
-	d := &model.ListingDetail{}
-	var sourceID *string
-	err := r.db.QueryRow(`
+	return r.getByID(id, false)
+}
+
+// GetByIDAdmin returns the listing regardless of is_hidden. For admin use only.
+func (r *ListingRepo) GetByIDAdmin(id string) (*model.ListingDetail, error) {
+	return r.getByID(id, true)
+}
+
+func (r *ListingRepo) getByID(id string, includeHidden bool) (*model.ListingDetail, error) {
+	query := `
 		SELECT l.id, l.source_id, l.original_text, l.post_url, l.posted_at,
 		       l.brand, l.model, l.category, l.color, l.price, l.city, l.condition,
 		       l.size_rus, l.size_us, l.size_eu, l.is_hidden, l.created_at
-		FROM listings l WHERE l.id = $1 AND l.is_hidden = FALSE`, id,
-	).Scan(
+		FROM listings l WHERE l.id = $1`
+	if !includeHidden {
+		query += ` AND l.is_hidden = FALSE`
+	}
+
+	d := &model.ListingDetail{}
+	var sourceID *string
+	err := r.db.QueryRow(query, id).Scan(
 		&d.ID, &sourceID, &d.OriginalText, &d.PostURL, &d.PostedAt,
 		&d.Brand, &d.Model, &d.Category, &d.Color, &d.Price, &d.City, &d.Condition,
 		pq.Array(&d.SizeRus), pq.Array(&d.SizeUS), pq.Array(&d.SizeEU), &d.IsHidden, &d.CreatedAt,
@@ -254,6 +268,7 @@ func (r *ListingRepo) GetByID(id string) (*model.ListingDetail, error) {
 		if err := rows.Scan(&p.ID, &p.URL, &p.IsCover, &p.SortOrder); err != nil {
 			return nil, err
 		}
+		p.URL = rewritePhotoURL(p.URL)
 		d.Photos = append(d.Photos, p)
 	}
 
@@ -376,6 +391,7 @@ func (r *ListingRepo) AdminSearch(p *model.AdminListingSearchParams) ([]model.Ad
 		if it.SizeEU == nil {
 			it.SizeEU = []string{}
 		}
+		rewritePhotoURLPtr(it.CoverPhotoURL)
 		items = append(items, it)
 	}
 	if items == nil {
