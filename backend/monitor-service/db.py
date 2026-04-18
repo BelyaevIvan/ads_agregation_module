@@ -101,6 +101,19 @@ def get_active_sources(conn, platform: str) -> set[str]:
         return {row[0] for row in cur.fetchall()}
 
 
+def get_active_sources_full(conn, platform: str) -> list[tuple[str, str | None]]:
+    """Возвращает [(external_id, title), ...] для всех активных источников платформы.
+    Используется мониторами, чтобы получать актуальный список наблюдаемых групп
+    напрямую из БД — включая добавленные через админский UI, а не только из .env."""
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT external_id, title FROM sources "
+            "WHERE platform = %s AND is_active = TRUE",
+            (platform,),
+        )
+        return list(cur.fetchall())
+
+
 def save_log(
     conn,
     source_id: str | None,
