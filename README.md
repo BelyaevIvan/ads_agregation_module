@@ -165,7 +165,7 @@ docker exec -it brandhunt_postgres psql -U brandhunt -d brandhunt -c "UPDATE use
 
 ### Документация методов
 
-Каждый эндпоинт описан в отдельной папке внутри [`backend/docs/`](backend/docs/) в формате AsciiDoc. Корневой файл — [`backend/docs/index.adoc`](backend/docs/index.adoc).
+Каждый эндпоинт описан в отдельной папке внутри [`backend/docs/asciidoc/`](backend/docs/asciidoc/) в формате AsciiDoc. Корневой файл — [`backend/docs/asciidoc/index.adoc`](backend/docs/asciidoc/index.adoc).
 
 Структура папки одного метода (имя папки = `<http-метод>-<путь-через-дефисы>`, например `get-listings-id`, `delete-admin-listings-id-photos-id`):
 
@@ -185,29 +185,29 @@ docker exec -it brandhunt_postgres psql -U brandhunt -d brandhunt -c "UPDATE use
 
 | Метод | Путь | Доступ | Описание |
 |---|---|---|---|
-| POST | [`/api/v1/auth/register`](backend/docs/post-auth-register/post-auth-register.adoc) | Public | Регистрация |
-| POST | [`/api/v1/auth/login`](backend/docs/post-auth-login/post-auth-login.adoc) | Public | Вход, получение JWT |
-| POST | [`/api/v1/auth/logout`](backend/docs/post-auth-logout/post-auth-logout.adoc) | Auth | Выход |
-| GET | [`/api/v1/listings`](backend/docs/get-listings/get-listings.adoc) | Public | Поиск и фильтрация объявлений |
-| GET | [`/api/v1/listings/{id}`](backend/docs/get-listings-id/get-listings-id.adoc) | Public | Карточка объявления |
-| GET | [`/api/v1/users/me`](backend/docs/get-users-me/get-users-me.adoc) | Auth | Профиль пользователя |
+| POST | [`/api/v1/auth/register`](backend/docs/asciidoc/post-auth-register/post-auth-register.adoc) | Public | Регистрация |
+| POST | [`/api/v1/auth/login`](backend/docs/asciidoc/post-auth-login/post-auth-login.adoc) | Public | Вход, получение JWT |
+| POST | [`/api/v1/auth/logout`](backend/docs/asciidoc/post-auth-logout/post-auth-logout.adoc) | Auth | Выход |
+| GET | [`/api/v1/listings`](backend/docs/asciidoc/get-listings/get-listings.adoc) | Public | Поиск и фильтрация объявлений |
+| GET | [`/api/v1/listings/{id}`](backend/docs/asciidoc/get-listings-id/get-listings-id.adoc) | Public | Карточка объявления |
+| GET | [`/api/v1/users/me`](backend/docs/asciidoc/get-users-me/get-users-me.adoc) | Auth | Профиль пользователя |
 | PUT | [`/api/v1/users/me`](backend/docs/put-users-me/put-users-me.adoc) | Auth | Обновить профиль |
-| GET | [`/api/v1/users/me/favorites`](backend/docs/get-users-me-favorites/get-users-me-favorites.adoc) | Auth | Список избранного |
-| POST | [`/api/v1/users/me/favorites`](backend/docs/post-users-me-favorites/post-users-me-favorites.adoc) | Auth | Добавить в избранное |
-| DELETE | [`/api/v1/users/me/favorites/{listing_id}`](backend/docs/delete-users-me-favorites-id/delete-users-me-favorites-id.adoc) | Auth | Убрать из избранного |
-| GET | [`/api/v1/admin/listings`](backend/docs/get-admin-listings/get-admin-listings.adoc) | Admin | Все объявления (вкл. скрытые) |
-| GET | [`/api/v1/admin/listings/{id}`](backend/docs/get-admin-listings-id/get-admin-listings-id.adoc) | Admin | Карточка (вкл. скрытые) |
-| PATCH | [`/api/v1/admin/listings/{id}/visibility`](backend/docs/patch-admin-listings-id-visibility/patch-admin-listings-id-visibility.adoc) | Admin | Скрыть / восстановить |
-| PATCH | [`/api/v1/admin/listings/{id}/text`](backend/docs/patch-admin-listings-id-text/patch-admin-listings-id-text.adoc) | Admin | Редактировать текст |
-| DELETE | [`/api/v1/admin/listings/{id}/photos/{photo_id}`](backend/docs/delete-admin-listings-id-photos-id/delete-admin-listings-id-photos-id.adoc) | Admin | Удалить фото |
-| GET | [`/api/v1/admin/stats`](backend/docs/get-admin-stats/get-admin-stats.adoc) | Admin | Сводная статистика |
-| GET | [`/api/v1/admin/stats/listings-by-day`](backend/docs/get-admin-stats-listings-by-day/get-admin-stats-listings-by-day.adoc) | Admin | Динамика по дням |
-| GET | [`/api/v1/admin/stats/top-brands`](backend/docs/get-admin-stats-top-brands/get-admin-stats-top-brands.adoc) | Admin | Топ брендов |
-| GET | [`/api/v1/admin/stats/top-cities`](backend/docs/get-admin-stats-top-cities/get-admin-stats-top-cities.adoc) | Admin | Топ городов |
-| GET | [`/api/v1/admin/sources`](backend/docs/get-admin-sources/get-admin-sources.adoc) | Admin | Список источников |
-| POST | [`/api/v1/admin/sources`](backend/docs/post-admin-sources/post-admin-sources.adoc) | Admin | Добавить источник |
-| PATCH | [`/api/v1/admin/sources/{id}/toggle`](backend/docs/patch-admin-sources-id-toggle/patch-admin-sources-id-toggle.adoc) | Admin | Вкл/выкл мониторинг |
-| GET | [`/api/v1/filters/sizes`](backend/docs/get-filters-sizes/get-filters-sizes.adoc) | Public | Доступные размеры из активных объявлений |
+| GET | [`/api/v1/users/me/favorites`](backend/docs/asciidoc/get-users-me-favorites/get-users-me-favorites.adoc) | Auth | Список избранного |
+| POST | [`/api/v1/users/me/favorites`](backend/docs/asciidoc/post-users-me-favorites/post-users-me-favorites.adoc) | Auth | Добавить в избранное |
+| DELETE | [`/api/v1/users/me/favorites/{listing_id}`](backend/docs/asciidoc/delete-users-me-favorites-id/delete-users-me-favorites-id.adoc) | Auth | Убрать из избранного |
+| GET | [`/api/v1/admin/listings`](backend/docs/asciidoc/get-admin-listings/get-admin-listings.adoc) | Admin | Все объявления (вкл. скрытые) |
+| GET | [`/api/v1/admin/listings/{id}`](backend/docs/asciidoc/get-admin-listings-id/get-admin-listings-id.adoc) | Admin | Карточка (вкл. скрытые) |
+| PATCH | [`/api/v1/admin/listings/{id}/visibility`](backend/docs/asciidoc/patch-admin-listings-id-visibility/patch-admin-listings-id-visibility.adoc) | Admin | Скрыть / восстановить |
+| PATCH | [`/api/v1/admin/listings/{id}/text`](backend/docs/asciidoc/patch-admin-listings-id-text/patch-admin-listings-id-text.adoc) | Admin | Редактировать текст |
+| DELETE | [`/api/v1/admin/listings/{id}/photos/{photo_id}`](backend/docs/asciidoc/delete-admin-listings-id-photos-id/delete-admin-listings-id-photos-id.adoc) | Admin | Удалить фото |
+| GET | [`/api/v1/admin/stats`](backend/docs/asciidoc/get-admin-stats/get-admin-stats.adoc) | Admin | Сводная статистика |
+| GET | [`/api/v1/admin/stats/listings-by-day`](backend/docs/asciidoc/get-admin-stats-listings-by-day/get-admin-stats-listings-by-day.adoc) | Admin | Динамика по дням |
+| GET | [`/api/v1/admin/stats/top-brands`](backend/docs/asciidoc/get-admin-stats-top-brands/get-admin-stats-top-brands.adoc) | Admin | Топ брендов |
+| GET | [`/api/v1/admin/stats/top-cities`](backend/docs/asciidoc/get-admin-stats-top-cities/get-admin-stats-top-cities.adoc) | Admin | Топ городов |
+| GET | [`/api/v1/admin/sources`](backend/docs/asciidoc/get-admin-sources/get-admin-sources.adoc) | Admin | Список источников |
+| POST | [`/api/v1/admin/sources`](backend/docs/asciidoc/post-admin-sources/post-admin-sources.adoc) | Admin | Добавить источник |
+| PATCH | [`/api/v1/admin/sources/{id}/toggle`](backend/docs/asciidoc/patch-admin-sources-id-toggle/patch-admin-sources-id-toggle.adoc) | Admin | Вкл/выкл мониторинг |
+| GET | [`/api/v1/filters/sizes`](backend/docs/asciidoc/get-filters-sizes/get-filters-sizes.adoc) | Public | Доступные размеры из активных объявлений |
 
 ---
 
